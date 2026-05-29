@@ -1,8 +1,4 @@
-﻿using System.Reflection.PortableExecutable;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using static System.Net.Mime.MediaTypeNames;
-using Lesson1.DTO;
+﻿using Lesson1.DTO;
 using Lesson1;
 
 ResultInfoDTO resultInfoDto;

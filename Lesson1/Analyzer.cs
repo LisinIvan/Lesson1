@@ -1,15 +1,11 @@
 ﻿using Lesson1.DTO;
-using System;
-using System.Collections.Generic;
-using System.Reflection.PortableExecutable;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Lesson1
 {
     public class Analyzer
     {
-        public async Task<ResultInfoDTO> startAnalizeAsync(string filePath)
+        public async Task<ResultInfoDTO> StartAnalyzeAsync(string filePath)
         {
             ResultInfoDTO resultInfoDto = new ResultInfoDTO();
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
@@ -26,49 +22,46 @@ namespace Lesson1
                 {
 
                     string? line = await reader.ReadLineAsync();
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
+                    resultInfoDto.LineNum++;
+                    resultInfoDto.ChangeFlag = 1;
 
-                    var words = Regex.Split(line, @"\W+").Where(w => !string.IsNullOrEmpty(w)).ToArray();
-                    resultInfoDto.wordsNum += words.Length;
-
-                    foreach (var word in words)
+                    if (!string.IsNullOrWhiteSpace(line))
                     {
-                        string cleanWord = new string(
-                            word.Where(c => !char.IsPunctuation(c)).ToArray());
 
-                        if (string.IsNullOrEmpty(resultInfoDto.longWord))
+                        var words = Regex.Split(line, @"\W+").Where(w => !string.IsNullOrEmpty(w)).ToArray();
+                        resultInfoDto.WordsNum += words.Length;
+
+                        foreach (var word in words)
                         {
-                            resultInfoDto.longWord = cleanWord;
+                            string cleanWord = new string(
+                                word.Where(c => !char.IsPunctuation(c)).ToArray());
+
+                            if (string.IsNullOrEmpty(resultInfoDto.LongWord))
+                            {
+                                resultInfoDto.LongWord = cleanWord;
+                            }
+                            if (cleanWord.Length > resultInfoDto.LongWord.Length)
+                            {
+                                resultInfoDto.LongWord = cleanWord;
+                            }
                         }
-                        if (cleanWord.Length > resultInfoDto.longWord.Length)
-                        {
-                            resultInfoDto.longWord = cleanWord;
-                        }
+
+                        int symbolsInLine = line.Count(c => !char.IsWhiteSpace(c));
+                        resultInfoDto.SymbolNum += symbolsInLine;
                     }
 
-                    line = line.Replace(" ", "");
-                    if (line.Count() > 0)
-                    {
-                        resultInfoDto.symbolNum += line.Count();
-                    }
-
-                    int symbolsInLine = line.Count(c => c != ' ');
-                    resultInfoDto.symbolNum += symbolsInLine;
-
-                    resultInfoDto.lineNum++;
-                    resultInfoDto.changeFlag = 1;
+                    
                 }
             }
             catch (UnauthorizedAccessException)
             {
                 Console.WriteLine($"Ошибка: У пользователя нет прав на чтение файла \"{Path.GetFileName(filePath)}\".");
-                resultInfoDto.changeFlag = -1; 
+                resultInfoDto.ChangeFlag = -1; 
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка при чтении файла \"{Path.GetFileName(filePath)}\": {ex.Message}");
-                resultInfoDto.changeFlag = -1;
+                resultInfoDto.ChangeFlag = -1;
             }
             return resultInfoDto;
         }

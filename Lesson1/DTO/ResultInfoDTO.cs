@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace Lesson1.DTO
 {
-    public struct ResultInfoDTO
+    public record ResultInfoDTO
     {
-        public int symbolNum = 0;
-        public int wordsNum = 0;
-        public int lineNum = 0;
-        public string longWord = "";
-        public int changeFlag = 0;
-
-        public ResultInfoDTO()
-        { }
+        public int SymbolNum { get; set; } = 0;
+        public int WordsNum { get; set; } = 0;
+        public int LineNum { get; set; } = 0;
+        public string LongWord { get; set; } = "";
+        public int ChangeFlag { get; set; } = 0;
     }
 }
