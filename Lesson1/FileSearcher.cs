@@ -1,4 +1,5 @@
 ﻿using Lesson1.DTO;
+using Lesson1.Interface;
 using System.Collections.Concurrent;
 using System.Text;
 
@@ -6,7 +7,12 @@ namespace Lesson1
 {
     public class FileSearcher
     {
-        private readonly Analyzer _analyzer = new Analyzer();
+        private readonly IAnalyzer _analyzer;
+
+        public FileSearcher(IAnalyzer analyzer)
+        {
+            _analyzer = analyzer;
+        }
 
         public async Task<string> StartScanAsync(string folderPath)
         {
@@ -46,6 +52,13 @@ namespace Lesson1
                 Console.WriteLine("Ошибка: В папке лежат не текстовые файлы (например, .jpg или .exe). Нет файлов с расширением .txt для анализа.");
                 return "";
             }
+            else
+            {
+                return await SaveInCSV(txtFiles, folderPath);
+            }
+        }
+        public async Task<string> SaveInCSV(string[] txtFiles, string folderPath)
+        {
 
             var resultsBag = new ConcurrentBag<(string FileName, ResultInfoDTO Dto)>();
 
@@ -56,7 +69,9 @@ namespace Lesson1
                 {
                     string fullPath = Path.Combine(folderPath, fileName);
 
-                    ResultInfoDTO resultInfoDto = await _analyzer.StartAnalyzeAsync(fullPath);
+
+
+                    ResultInfoDTO resultInfoDto = await _analyzer.AnalyzeAsync(fullPath);
                     if (resultInfoDto.ChangeFlag == -1)
                     {
                         return;

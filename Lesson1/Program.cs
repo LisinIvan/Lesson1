@@ -1,9 +1,10 @@
-﻿using Lesson1.DTO;
-using Lesson1;
+﻿using Lesson1;
+using Lesson1.DTO;
+using Lesson1.Interface;
 
 ResultInfoDTO resultInfoDto;
-Analyzer analyzer = new Analyzer();
-FileSearcher fileSearch = new FileSearcher();
+IAnalyzer analyzer = new Analyzer();
+FileSearcher fileSearch = new FileSearcher(analyzer);
 string folderPath = "";
 string longWord = "";
 

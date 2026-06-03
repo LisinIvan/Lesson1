@@ -1,11 +1,12 @@
 ﻿using Lesson1.DTO;
+using Lesson1.Interface;
 using System.Text.RegularExpressions;
 
 namespace Lesson1
 {
-    public class Analyzer
+    public class Analyzer:IAnalyzer
     {
-        public async Task<ResultInfoDTO> StartAnalyzeAsync(string filePath)
+        public async Task<ResultInfoDTO> AnalyzeAsync(string filePath)
         {
             ResultInfoDTO resultInfoDto = new ResultInfoDTO();
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
