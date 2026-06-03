@@ -54,12 +54,15 @@ namespace Lesson1
             }
             else
             {
-                return await SaveInCSV(txtFiles, folderPath);
+                var resultsBag = await GetParallelConcurrentBag(txtFiles, folderPath);
+
+                string absoluteLongerWord = await SaveToCsvAsync(resultsBag, folderPath);
+
+                return absoluteLongerWord;
             }
         }
-        public async Task<string> SaveInCSV(string[] txtFiles, string folderPath)
+        public async Task<ConcurrentBag<(string FileName, ResultInfoDTO Dto)>> GetParallelConcurrentBag(string[] txtFiles, string folderPath)
         {
-
             var resultsBag = new ConcurrentBag<(string FileName, ResultInfoDTO Dto)>();
 
             try
@@ -68,12 +71,23 @@ namespace Lesson1
                 await Parallel.ForEachAsync(txtFiles, async (fileName, cancellationToken) =>
                 {
                     string fullPath = Path.Combine(folderPath, fileName);
+                    string fileContent = "";
+                    ResultInfoDTO resultInfoDto;
 
-
-
-                    ResultInfoDTO resultInfoDto = await _analyzer.AnalyzeAsync(fullPath);
-                    if (resultInfoDto.ChangeFlag == -1)
+                    try
                     {
+                        fileContent = await File.ReadAllTextAsync(fullPath, cancellationToken);
+
+                        resultInfoDto = _analyzer.Analyze(fileContent);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Console.WriteLine($"Ошибка: Нет прав на чтение файла \"{fileName}\".");
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Ошибка при чтении файла \"{fileName}\": {ex.Message}");
                         return;
                     }
 
@@ -85,7 +99,10 @@ namespace Lesson1
             {
                 Console.WriteLine($"Критическая ошибка при параллельном анализе файлов: {ex.Message}");
             }
-
+            return resultsBag;
+        }
+        public async Task<string> SaveToCsvAsync(ConcurrentBag<(string FileName, ResultInfoDTO Dto)> resultBag, string folderPath)
+        {
             string csvPath = Path.Combine(folderPath, "result.csv");
             string absoluteLongerWord = "";
 
@@ -95,7 +112,7 @@ namespace Lesson1
                 {
                     await writer.WriteLineAsync("FileName;symbolNum;wordsNum;lineNum;longWord");
 
-                    foreach (var item in resultsBag)
+                    foreach (var item in resultBag)
                     {
                         await writer.WriteLineAsync($"\"{item.FileName}\";\"{item.Dto.SymbolNum}\";\"{item.Dto.WordsNum}\";\"{item.Dto.LineNum}\";\"{item.Dto.LongWord}\"");
 

@@ -6,65 +6,42 @@ namespace Lesson1
 {
     public class Analyzer:IAnalyzer
     {
-        public async Task<ResultInfoDTO> AnalyzeAsync(string filePath)
+        public ResultInfoDTO Analyze(string content)
         {
-            ResultInfoDTO resultInfoDto = new ResultInfoDTO();
-            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+            ResultInfoDTO dto = new ResultInfoDTO();
+            dto.ChangeFlag = 1;
+
+            if (string.IsNullOrWhiteSpace(content))
             {
-                return resultInfoDto;
+                return dto;
             }
-            try
+
+            string[] lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            dto.LineNum = lines.Length;
+
+            foreach (var line in lines)
             {
-                await using FileStream stream = File.OpenRead(filePath);
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
 
-                using StreamReader reader = new StreamReader(stream);
+                var words = Regex.Split(line, @"\W+").Where(w => !string.IsNullOrEmpty(w)).ToArray();
+                dto.WordsNum += words.Length;
 
-                while (!reader.EndOfStream)
+                foreach (var word in words)
                 {
+                    string cleanWord = new string(word.Where(c => !char.IsPunctuation(c)).ToArray());
 
-                    string? line = await reader.ReadLineAsync();
-                    resultInfoDto.LineNum++;
-                    resultInfoDto.ChangeFlag = 1;
-
-                    if (!string.IsNullOrWhiteSpace(line))
+                    if (string.IsNullOrEmpty(dto.LongWord) || cleanWord.Length > dto.LongWord.Length)
                     {
-
-                        var words = Regex.Split(line, @"\W+").Where(w => !string.IsNullOrEmpty(w)).ToArray();
-                        resultInfoDto.WordsNum += words.Length;
-
-                        foreach (var word in words)
-                        {
-                            string cleanWord = new string(
-                                word.Where(c => !char.IsPunctuation(c)).ToArray());
-
-                            if (string.IsNullOrEmpty(resultInfoDto.LongWord))
-                            {
-                                resultInfoDto.LongWord = cleanWord;
-                            }
-                            if (cleanWord.Length > resultInfoDto.LongWord.Length)
-                            {
-                                resultInfoDto.LongWord = cleanWord;
-                            }
-                        }
-
-                        int symbolsInLine = line.Count(c => !char.IsWhiteSpace(c));
-                        resultInfoDto.SymbolNum += symbolsInLine;
+                        dto.LongWord = cleanWord;
                     }
-
-                    
                 }
+
+                int symbolsInLine = line.Count(c => !char.IsWhiteSpace(c));
+                dto.SymbolNum += symbolsInLine;
             }
-            catch (UnauthorizedAccessException)
-            {
-                Console.WriteLine($"Ошибка: У пользователя нет прав на чтение файла \"{Path.GetFileName(filePath)}\".");
-                resultInfoDto.ChangeFlag = -1; 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при чтении файла \"{Path.GetFileName(filePath)}\": {ex.Message}");
-                resultInfoDto.ChangeFlag = -1;
-            }
-            return resultInfoDto;
+
+            return dto;
         }
     }
 }

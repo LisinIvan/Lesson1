@@ -7,6 +7,6 @@ namespace Lesson1.Interface
 {
     public interface IAnalyzer
     {
-        Task<ResultInfoDTO> AnalyzeAsync(string filePath);
+        ResultInfoDTO Analyze(string content);
     }
 }
