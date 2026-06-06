@@ -6,9 +6,9 @@ namespace Lesson1
 {
     public class Analyzer:IAnalyzer
     {
-        public ResultInfoDTO Analyze(string content)
+        public ResultInfoDto Analyze(string content)
         {
-            ResultInfoDTO dto = new ResultInfoDTO();
+            var dto = new ResultInfoDto();
             dto.ChangeFlag = 1;
 
             if (string.IsNullOrWhiteSpace(content))
@@ -29,7 +29,7 @@ namespace Lesson1
 
                 foreach (var word in words)
                 {
-                    string cleanWord = new string(word.Where(c => !char.IsPunctuation(c)).ToArray());
+                    var cleanWord = new string(word.Where(c => !char.IsPunctuation(c)).ToArray());
 
                     if (string.IsNullOrEmpty(dto.LongWord) || cleanWord.Length > dto.LongWord.Length)
                     {

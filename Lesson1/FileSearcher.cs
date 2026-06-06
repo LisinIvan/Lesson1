@@ -56,23 +56,23 @@ namespace Lesson1
             {
                 var resultsBag = await GetParallelConcurrentBag(txtFiles, folderPath);
 
-                string absoluteLongerWord = await SaveToCsvAsync(resultsBag, folderPath);
+                var absoluteLongerWord = await SaveToCsvAsync(resultsBag, folderPath);
 
                 return absoluteLongerWord;
             }
         }
-        public async Task<ConcurrentBag<(string FileName, ResultInfoDTO Dto)>> GetParallelConcurrentBag(string[] txtFiles, string folderPath)
+        private async Task<ConcurrentBag<(string FileName, ResultInfoDto Dto)>> GetParallelConcurrentBag(string[] txtFiles, string folderPath)
         {
-            var resultsBag = new ConcurrentBag<(string FileName, ResultInfoDTO Dto)>();
+            var resultsBag = new ConcurrentBag<(string FileName, ResultInfoDto Dto)>();
 
             try
             {
 
                 await Parallel.ForEachAsync(txtFiles, async (fileName, cancellationToken) =>
                 {
-                    string fullPath = Path.Combine(folderPath, fileName);
-                    string fileContent = "";
-                    ResultInfoDTO resultInfoDto;
+                    var fullPath = Path.Combine(folderPath, fileName);
+                    var fileContent = "";
+                    ResultInfoDto resultInfoDto;
 
                     try
                     {
@@ -101,10 +101,10 @@ namespace Lesson1
             }
             return resultsBag;
         }
-        public async Task<string> SaveToCsvAsync(ConcurrentBag<(string FileName, ResultInfoDTO Dto)> resultBag, string folderPath)
+        private async Task<string> SaveToCsvAsync(ConcurrentBag<(string FileName, ResultInfoDto Dto)> resultBag, string folderPath)
         {
-            string csvPath = Path.Combine(folderPath, "result.csv");
-            string absoluteLongerWord = "";
+            var csvPath = Path.Combine(folderPath, "result.csv");
+            var absoluteLongerWord = "";
 
             try
             {
