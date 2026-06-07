@@ -2,6 +2,9 @@
 using Lesson1.Interface;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Lesson1.Tests")]
 
 namespace Lesson1
 {
@@ -61,7 +64,7 @@ namespace Lesson1
                 return absoluteLongerWord;
             }
         }
-        private async Task<ConcurrentBag<(string FileName, ResultInfoDto Dto)>> GetParallelConcurrentBag(string[] txtFiles, string folderPath)
+        internal async Task<ConcurrentBag<(string FileName, ResultInfoDto Dto)>> GetParallelConcurrentBag(string[] txtFiles, string folderPath)
         {
             var resultsBag = new ConcurrentBag<(string FileName, ResultInfoDto Dto)>();
 
@@ -101,7 +104,7 @@ namespace Lesson1
             }
             return resultsBag;
         }
-        private async Task<string> SaveToCsvAsync(ConcurrentBag<(string FileName, ResultInfoDto Dto)> resultBag, string folderPath)
+        internal async Task<string> SaveToCsvAsync(ConcurrentBag<(string FileName, ResultInfoDto Dto)> resultBag, string folderPath)
         {
             var csvPath = Path.Combine(folderPath, "result.csv");
             var absoluteLongerWord = "";
